@@ -8,6 +8,8 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
+import { toast } from "@/hooks/use-toast";
+
 function useCreateContactSubmission() {
   const [isPending, setIsPending] = useState(false);
   const mutateAsync = async (payload: {
@@ -31,7 +33,6 @@ function useCreateContactSubmission() {
   };
   return { mutateAsync, isPending };
 }
-import { toast } from "@/hooks/use-toast";
 
 import logoOrangePath from "@assets/lp-logo-red.png";
 import heroVid1 from "@assets/generated_videos/cpg-chocolate-pour.mp4";
@@ -84,7 +85,7 @@ export function openAbout() {
 }
 
 /* ─────────────────────────────────────────────
-   SCROLL REVEAL — whileInView (IntersectionObserver)
+   SCROLL REVEAL  -  whileInView (IntersectionObserver)
    Works reliably in all contexts incl. iframes.
 ───────────────────────────────────────────── */
 export function ScrollReveal({
@@ -354,7 +355,7 @@ const stats: { value: string; label: string; context?: string }[] = [
 ];
 
 /* ─────────────────────────────────────────────
-   NAV — centered logo, links on each side
+   NAV  -  centered logo, links on each side
    Mirrors Stone exactly.
 ───────────────────────────────────────────── */
 export function Navbar({ tone }: { tone: "dark" | "light" }) {
@@ -490,7 +491,7 @@ export function Navbar({ tone }: { tone: "dark" | "light" }) {
 }
 
 /* ─────────────────────────────────────────────
-   HERO — fast-cut mixed slideshow: real brand photos + stock videos.
+   HERO  -  fast-cut mixed slideshow: real brand photos + stock videos.
    Images: 2.2 s with Ken Burns zoom. Videos: 3.5 s then advance.
    Hard dissolve: 0.35 s.
 ───────────────────────────────────────────── */
@@ -538,7 +539,7 @@ function HeroSlideshow() {
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Poster fallback — visible until first slide fades in */}
+      {/* Poster fallback  -  visible until first slide fades in */}
       <img src={bornSimpleFamily} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 0 }} />
 
       <AnimatePresence mode="sync">
@@ -609,10 +610,10 @@ function Hero() {
         style={{ background: "linear-gradient(to bottom, rgba(14,12,10,0.55) 0%, rgba(14,12,10,0.25) 40%, rgba(14,12,10,0.65) 100%)" }}
       />
 
-      {/* Orange flood overlay — pours in on scroll */}
+      {/* Orange flood overlay  -  pours in on scroll */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ background: ORANGE, opacity: orangeOverlay }} />
 
-      {/* Hero column — wordmark + tagline stacked in one centered flow so they
+      {/* Hero column  -  wordmark + tagline stacked in one centered flow so they
          can never overlap. Wordmark is scroll-linked: white → orange, grows, then fades. */}
       <div className="relative z-10 flex flex-col items-center text-center px-6">
         <motion.div
@@ -624,14 +625,14 @@ function Hero() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, delay: 0.15, ease: [0.34, 1.9, 0.64, 1] }}
           >
-            {/* orange — visible on load, sits underneath */}
+            {/* orange  -  visible on load, sits underneath */}
             <img
               src={logoOrangePath}
               alt="Little Pilot"
               className="w-full object-contain"
               style={{ filter: "drop-shadow(0 6px 40px rgba(249,85,0,0.45))" }}
             />
-            {/* white — fades in on top, becoming the resting state */}
+            {/* white  -  fades in on top, becoming the resting state */}
             <motion.img
               src={logoOrangePath}
               alt=""
@@ -682,14 +683,14 @@ function Hero() {
 }
 
 /* ─────────────────────────────────────────────
-   INTRO — dark section, big centered statement
+   INTRO  -  dark section, big centered statement
 ───────────────────────────────────────────── */
 function Intro() {
   return (
     <section
       id="intro"
       data-navtone="dark"
-      className="relative min-h-[100dvh] flex flex-col justify-center py-40"
+      className="relative min-h-[100dvh] flex flex-col justify-center pt-20 pb-40"
       style={{ background: DARK }}
     >
       <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -753,7 +754,7 @@ function Intro() {
 
         {/* Body + CTA bottom-right */}
         <motion.div
-          className="lg:col-start-7 lg:col-span-6"
+          className="lg:col-span-6"
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-80px" }}
@@ -778,7 +779,7 @@ function Intro() {
 }
 
 /* ─────────────────────────────────────────────
-   SERVICES — full-funnel capabilities from deck
+   SERVICES  -  full-funnel capabilities from deck
 ───────────────────────────────────────────── */
 const serviceList = [
   {
@@ -858,10 +859,11 @@ function Services() {
 }
 
 /* ─────────────────────────────────────────────
-   BRAND CARD — portfolio piece, photo + white logo
+   BRAND CARD  -  portfolio piece, photo + white logo
 ───────────────────────────────────────────── */
 export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: number }) {
   const isFull = brand.span === "full";
+  const heroStat = brand.caseStudy?.heroStat;
 
   return (
     <motion.button
@@ -876,6 +878,7 @@ export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: nu
       transition={{ duration: 0.8, delay: (index % 2) * 0.08, ease: [0.16, 1, 0.3, 1] }}
       data-testid={`card-brand-${index}`}
     >
+      {/* Background image */}
       {brand.bg && (
         <img
           src={brand.bg}
@@ -883,44 +886,77 @@ export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: nu
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
         />
       )}
+
+      {/* Orange inset border on hover */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-500 opacity-0 group-hover:opacity-100"
+        style={{ boxShadow: `inset 0 0 0 2px ${ORANGE}`, borderRadius: 20 }}
+      />
+
+      {/* Gradient overlay  -  deeper at bottom for legibility */}
       <div
         className="absolute inset-0"
         style={{
           background: brand.bg
-            ? "linear-gradient(to top, rgba(14,12,10,0.78) 0%, rgba(14,12,10,0.18) 45%, rgba(14,12,10,0.4) 100%)"
-            : "linear-gradient(135deg, rgba(249,85,0,0.12) 0%, rgba(14,12,10,0) 60%)",
+            ? "linear-gradient(to top, rgba(14,12,10,0.92) 0%, rgba(14,12,10,0.15) 50%, rgba(14,12,10,0.35) 100%)"
+            : "linear-gradient(135deg, rgba(249,85,0,0.14) 0%, rgba(14,12,10,0) 60%)",
         }}
       />
+
+      {/* Logo  -  fades out on hover to reveal stat */}
       {brand.logo && (
         <div className="absolute inset-0 flex items-center justify-center p-10 pointer-events-none">
           <img
             src={brand.logo}
             alt={brand.name}
-            className="object-contain transition-transform duration-700 group-hover:-translate-y-1"
+            className="object-contain transition-all duration-500 group-hover:opacity-0 group-hover:-translate-y-4"
             style={{ maxHeight: isFull ? "32%" : "38%", maxWidth: "62%" }}
           />
         </div>
       )}
 
-      {/* Bottom info — name + category stacked, no overlap */}
+      {/* Index  -  top-left */}
+      <div className="absolute top-6 left-6 md:top-8 md:left-8 pointer-events-none">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/25">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
+
+      {/* Bottom panel */}
       <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 pointer-events-none">
-        {!brand.logo && (
-          <h3
-            className="font-black uppercase tracking-tight leading-[0.9] text-white mb-2 transition-transform duration-700 group-hover:-translate-y-1"
-            style={{ fontSize: "clamp(1.5rem, 3.5vw, 3rem)" }}
+        {/* Hero stat  -  slides up on hover */}
+        {heroStat && (
+          <div
+            className="mb-4 translate-y-4 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100"
           >
-            {brand.name}
-          </h3>
+            <div
+              className="font-black leading-none mb-1"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.25rem)", color: ORANGE }}
+            >
+              {heroStat.value}
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">
+              {heroStat.label}
+            </div>
+          </div>
         )}
+
+        {/* Brand name + category  -  always visible */}
+        <h3
+          className="font-black uppercase tracking-tight leading-[0.9] text-white mb-2 transition-transform duration-500 group-hover:-translate-y-1"
+          style={{ fontSize: "clamp(1.1rem, 2.4vw, 1.6rem)" }}
+        >
+          {brand.name}
+        </h3>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70">
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">
             {brand.category}
           </span>
           <span
             className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-0 -translate-x-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 whitespace-nowrap"
             style={{ color: ORANGE }}
           >
-            View →
+            View case study →
           </span>
         </div>
       </div>
@@ -931,7 +967,7 @@ export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: nu
 function Work() {
   return (
     <section id="work" data-navtone="dark" className="border-t border-white/10" style={{ background: DARK }}>
-      {/* Section header — real copy from littlepilot.co/work */}
+      {/* Section header  -  real copy from littlepilot.co/work */}
       <div className="max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-12 md:pb-16">
         <ScrollReveal>
           <span className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: ORANGE }}>
@@ -963,7 +999,7 @@ function Work() {
         </div>
       </div>
 
-      {/* Scrolling work reel — folded in from WorkReel */}
+      {/* Scrolling work reel  -  folded in from WorkReel */}
       <div className="mt-8">
         <WorkReel />
       </div>
@@ -986,7 +1022,7 @@ function Work() {
 }
 
 /* ─────────────────────────────────────────────
-   WORK REEL — dual-row auto-scrolling project strip
+   WORK REEL  -  dual-row auto-scrolling project strip
 ───────────────────────────────────────────── */
 const reelRowOne = [
   { src: reuzelReel, alt: "Reuzel campaign", label: "Reuzel", category: "Paid · Email · SMS" },
@@ -1122,10 +1158,10 @@ export function WorkReel() {
 }
 
 /* ─────────────────────────────────────────────
-   BRAVE BRANDS — Stone's "WE ARE FOR BRAVE BRANDS"
+   BRAVE BRANDS  -  Stone's "WE ARE FOR BRAVE BRANDS"
 ───────────────────────────────────────────── */
 /* ─────────────────────────────────────────────
-   RETAILERS — scrolling logo strip
+   RETAILERS  -  scrolling logo strip
 ───────────────────────────────────────────── */
 const W = "brightness(0) invert(1)"; // dark-on-transparent → white
 const G = "grayscale(1) brightness(2)"; // complex colored bg → preserve shape
@@ -1215,7 +1251,7 @@ function Statement() {
     <section
       id="about"
       data-navtone="dark"
-      className="relative py-40 overflow-hidden"
+      className="relative pt-20 pb-40 overflow-hidden"
       style={{ background: DARK }}
     >
       <div className="max-w-7xl mx-auto px-6">
@@ -1314,7 +1350,7 @@ function Statement() {
 ───────────────────────────────────────────── */
 function Stats() {
   return (
-    <section data-navtone="dark" className="py-32 border-t border-white/10" style={{ background: DARK }}>
+    <section data-navtone="dark" className="pt-16 pb-32 border-t border-white/10" style={{ background: DARK }}>
       <div className="max-w-7xl mx-auto px-6">
         <ScrollReveal className="mb-20">
           <h2
@@ -1329,7 +1365,7 @@ function Stats() {
         <div className="grid grid-cols-2 lg:grid-cols-5 border-t border-white/10">
           {stats.map((s, i) => (
             <ScrollReveal key={i} delay={i * 0.08}>
-              <div className="py-12 pr-8 border-b lg:border-b-0 border-r border-white/10 last:border-r-0">
+              <div className="py-16 px-6 border-b lg:border-b-0 border-r border-white/10 last:border-r-0 first:pl-0">
                 <div
                   className="font-black leading-none mb-3"
                   style={{ fontSize: "clamp(3rem, 6vw, 6rem)", color: ORANGE }}
@@ -1354,7 +1390,7 @@ function Stats() {
 }
 
 /* ─────────────────────────────────────────────
-   CASE STUDY MODAL — placeholder write-up per brand
+   CASE STUDY MODAL  -  placeholder write-up per brand
 ───────────────────────────────────────────── */
 export function CaseStudyModal() {
   const [brand, setBrand] = useState<typeof brands[0] | null>(null);
@@ -1519,7 +1555,7 @@ export function CaseStudyModal() {
                 </div>
               )}
 
-              {/* Before / After — packaging redesign comparison */}
+              {/* Before / After  -  packaging redesign comparison */}
               {brand.bgBefore && brand.bg && (
                 <div className="mt-8">
                   <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ORANGE }}>
@@ -1656,7 +1692,7 @@ export function CaseStudyModal() {
 }
 
 /* ─────────────────────────────────────────────
-   ABOUT MODAL — who we are / how we fly
+   ABOUT MODAL  -  who we are / how we fly
 ───────────────────────────────────────────── */
 const ABOUT_PILLARS = [
   {
@@ -1800,8 +1836,8 @@ export function AboutModal() {
               </p>
               <p className="mt-5 text-foreground/60 leading-relaxed max-w-2xl">
                 We're a tight crew of strategists, designers, and growth operators who pair
-                big-agency craft with founder-level hustle. From first launch to national
-                retail, we plot the route and fly it with you. No fluff, no hand-offs, just
+                big agency craft with founder level hustle. From first launch to national
+                retail, we plot the route and fly it with you. No fluff, no handoffs, just
                 damn good marketing that earns its place on the shelf.
               </p>
 
@@ -1825,7 +1861,7 @@ export function AboutModal() {
                 {ABOUT_FACTS.map((f) => (
                   <div
                     key={f.label}
-                    className="py-6 pr-4 border-r last:border-r-0"
+                    className="pt-8 pb-8 px-6 first:pl-0 border-r last:border-r-0"
                     style={{ borderColor: "rgba(14,12,10,0.12)" }}
                   >
                     <div
@@ -1862,7 +1898,7 @@ export function AboutModal() {
 }
 
 /* ─────────────────────────────────────────────
-   CONTACT / FOOTER — dark, cinematic
+   CONTACT / FOOTER  -  dark, cinematic
 ───────────────────────────────────────────── */
 function Contact() {
   return (
@@ -1932,24 +1968,26 @@ function Contact() {
         </div>
       </motion.div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/25 uppercase tracking-widest">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center gap-2 md:gap-0 text-xs text-white/25 uppercase tracking-widest">
         <p>© 2026 Little Pilot. All rights reserved.</p>
+        <span className="hidden md:inline mx-4 text-white/10">|</span>
         <a
           href="mailto:alex@littlepilot.co"
           data-testid="link-contact-email"
-          className="hover:text-white/50 transition-colors normal-case"
+          className="opacity-50 hover:opacity-75 transition-opacity normal-case"
           style={{ textTransform: "none", letterSpacing: "normal" }}
         >
           alex@littlepilot.co
         </a>
-        <p>CPG Digital Marketing Agency</p>
+        <span className="hidden md:inline mx-4 text-white/10">|</span>
+        <p className="opacity-50">CPG Digital Marketing Agency</p>
       </div>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────
-   CONTACT POPUP — send a message
+   CONTACT POPUP  -  send a message
 ───────────────────────────────────────────── */
 const EMPTY_FORM = { name: "", email: "", company: "", message: "" };
 
