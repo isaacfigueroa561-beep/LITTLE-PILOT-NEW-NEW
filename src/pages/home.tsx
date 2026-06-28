@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import {
   motion,
@@ -8,35 +8,13 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-function useCreateContactSubmission() {
-  const [isPending, setIsPending] = useState(false);
-  const mutateAsync = async (payload: {
-    data: { type: string; name: string; email: string; company?: string; message?: string };
-  }) => {
-    setIsPending(true);
-    try {
-      const { data } = payload;
-      const body = [
-        `Name: ${data.name}`,
-        `Email: ${data.email}`,
-        data.company ? `Company: ${data.company}` : null,
-        data.message ? `\n${data.message}` : null,
-      ].filter(Boolean).join("\n");
-      const params = new URLSearchParams({ subject: `New message from ${data.name}`, body });
-      window.open(`mailto:alex@littlepilot.co?${params}`, "_blank");
-      await new Promise<void>(resolve => setTimeout(resolve, 300));
-    } finally {
-      setIsPending(false);
-    }
-  };
-  return { mutateAsync, isPending };
-}
 import { toast } from "@/hooks/use-toast";
 
 import logoOrangePath from "@assets/lp-logo-red.png";
 import heroVid1 from "@assets/generated_videos/cpg-chocolate-pour.mp4";
 import reuzelReel from "@assets/image_1781817554360.png";
 import tazaSpring from "@assets/TAZA-APRILSPRINGSHOOT-2024-04-02081223_1781817945352.png";
+import smsCreative from "@assets/image_1781817554360.png";
 import lesserEvilFriends from "@assets/Image_514_1781014172267.png";
 import honeyMamas from "@assets/Image_522_1781014164874.png";
 import grandyCamp from "@assets/Rectangle_672_1780954095454.png";
@@ -50,6 +28,7 @@ import bornSimpleCheese from "@assets/05_CheeseBag_0061_copy_1781014134890.jpg";
 import bornSimpleFamily from "@assets/06_FamilyShot_0111_copy_1781014134891.jpg";
 import bornSimpleTeriyaki from "@assets/10_TeriyakiBowl_Micro_0019_copy_1781014134891.jpg";
 
+import bristolSeafood from "@assets/bristol_seafood_hero.png";
 import logoWholeFoods from "@assets/1280px-Whole_Foods_Market_logo.svg_1781014195165.png";
 import logoAlbertsons from "@assets/Albertsons_(logo).svg_1781014195166.png";
 import logoHEB from "@assets/H-E-B_logo.svg_1781014798878.png";
@@ -84,7 +63,7 @@ export function openAbout() {
 }
 
 /* ─────────────────────────────────────────────
-   SCROLL REVEAL — whileInView (IntersectionObserver)
+   SCROLL REVEAL  -  whileInView (IntersectionObserver)
    Works reliably in all contexts incl. iframes.
 ───────────────────────────────────────────── */
 export function ScrollReveal({
@@ -124,6 +103,7 @@ type CaseStudy = {
   overview?: string;
   scope: string[];
   results?: CaseStudyStat[];
+  statGroups?: { title: string; stats: CaseStudyStat[] }[];
   checklist?: { title: string; items: ChecklistItem[] };
 };
 type Brand = {
@@ -145,28 +125,40 @@ export const brands: Brand[] = [
     span: "full",
     bg: tazaSpring,
     caseStudy: {
-      subtitle: "Stone-ground organic chocolate · Partnership since 2022",
+      subtitle: "Stone-ground organic chocolate · Full-funnel partnership since 2022",
       tagline:
-        "Grew ecommerce 25% YoY in 2025: paid grew 44% while ROAS improved, email grew to 50% of sales, and doubled Instagram reach through daily community management, no paid amplification.",
+        "One partner running Taza's full growth picture: paid and email drove 25% ecommerce growth in 2025 while organic social more than doubled reach, with performance and brand reinforcing each other.",
       heroStat: {
         value: "+25%",
         label: "Ecomm growth YoY, 2025",
         context: "Paid up 44% with ROAS improving year over year; email now half of all sales",
       },
       challenge:
-        "Taza needed sustained, profitable growth across paid and email, not a one-quarter spike. The brand had strong product loyalty but DTC revenue needed a step change, and an Instagram presence that converted brand equity into measurable engagement.",
+        "Taza had deep product loyalty and a distinctive brand, but neither was translating into sustained DTC growth. Revenue channels needed a step change without burning margin, and the brand's Instagram equity wasn't converting into engagement or discovery. They needed both performance and presence.",
       approach:
-        "Took over paid media on Google and Meta and rebuilt the email program. Layered seasonal promotions, evergreen campaigns, and refreshed flows tied to Taza's strongest moments. Ran daily community management: comment and DM responses, 2-4 story touches per day, and a consistent monthly content calendar.",
+        "Little Pilot took over the full growth stack across two complementary workstreams. On performance, we ran Google and Meta and rebuilt the email and SMS program with seasonal promotions, evergreen campaigns, and refreshed flows tied to Taza's strongest moments. On brand, we ran daily community management on Instagram including comment and DM response, two to four story touches a day, and a consistent monthly content calendar.",
       result:
-        "Grew ecommerce 25% year over year in 2025. Paid revenue grew 44% while ROAS improved to 3.30x. Email now drives half of all sales. Instagram reach doubled year over year, all organic, no paid amplification.",
+        "In 2025, ecommerce grew 25% year over year. Paid revenue grew 44% while ROAS improved to 3.30x, and email now drives half of all sales. At the same time, organic reach more than doubled and content interactions doubled, all without paid amplification, with performance and brand compounding together.",
       scope: ["Paid Media", "Email", "SMS", "Creative", "Social", "Community Management"],
-      results: [
-        { value: "3.30x", label: "Paid ROAS, 2025", context: "Up from 2.92x in 2024" },
-        { value: "+44%", label: "Paid revenue YoY", context: "Growth in 2025 vs 2024" },
-        { value: "50%", label: "Of sales from email", context: "+20% YoY" },
-        { value: "5.10x", label: "BFCM ROAS, Nov 2025", context: "Best-performing month of the year" },
-        { value: "+116%", label: "Instagram reach YoY", context: "192.4K accounts reached, organic only" },
-        { value: "+100%", label: "Content interactions YoY", context: "Doubled in 12 months" },
+      statGroups: [
+        {
+          title: "Performance · paid, email & SMS",
+          stats: [
+            { value: "3.30x", label: "Paid ROAS, 2025", context: "Up from 2.92x in 2024" },
+            { value: "+44%", label: "Paid revenue YoY", context: "2025 vs 2024" },
+            { value: "50%", label: "Of sales from email", context: "+20% YoY" },
+            { value: "5.10x", label: "BFCM ROAS", context: "Best-performing month, Nov 2025" },
+          ],
+        },
+        {
+          title: "Brand · organic social",
+          stats: [
+            { value: "+116%", label: "Organic reach YoY", context: "192.4K accounts reached, no paid spend" },
+            { value: "+100%", label: "Content interactions YoY", context: "Doubled in 12 months" },
+            { value: "+26%", label: "Profile visits YoY", context: "10.8K visits, people seeking the brand out" },
+            { value: "1.6K", label: "New followers", context: "Organic growth, 2025" },
+          ],
+        },
       ],
     },
   },
@@ -206,11 +198,11 @@ export const brands: Brand[] = [
     caseStudy: {
       subtitle: "Organic granola and snack mixes · Outdoor adventure brand, Maine roots",
       tagline:
-        "Full-line packaging refresh that modernized the look without losing shelf familiarity, plus a deep bank of brand assets, characters, and visual elements that now extend across digital.",
+        "Full line packaging refresh that modernized the look without losing shelf familiarity, plus a deep bank of brand assets, characters, and visual elements that now extend across digital.",
       challenge:
-        "Grandy Organics needed a full-line packaging refresh that better reflected their adventurous spirit, Maine roots, and premium organic ingredients, without losing the at-a-glance familiarity their existing customers count on.",
+        "Grandy Organics needed a full line packaging refresh that better reflected their adventurous spirit, Maine roots, and premium organic ingredients, without losing the at a glance familiarity their existing customers count on.",
       approach:
-        "Reinvented how the product is showcased on-bag (without the traditional product window), developed a new character system and visual language, and clarified the product line hierarchy under one unified philosophy.",
+        "Reinvented how the product is showcased on bag (without the traditional product window), developed a new character system and visual language, and clarified the product line hierarchy under one unified philosophy.",
       result:
         "A refreshed, ownable look across the full SKU lineup, plus a deep bank of brand assets, characters, and visual elements that now extend across Grandy's digital presence, social, and retail merchandising.",
       scope: ["Packaging", "Brand Design", "Creative"],
@@ -224,34 +216,6 @@ export const brands: Brand[] = [
           { number: "05", title: "Shelf familiarity", description: "Held customer recognition" },
         ],
       },
-    },
-  },
-  {
-    name: "Cappello's",
-    category: "Influencer · Retail Launch",
-    bg: cappellosSmile,
-    caseStudy: {
-      subtitle: "Grain-free pasta and baked goods · New SKU influencer launch campaign",
-      tagline:
-        "Seeded 113 product kits to a curated creator mix and generated 11.2M reach from 190 pieces of organic content, a 51% creator share rate that made it our most successful influencer campaign to date.",
-      heroStat: {
-        value: "11.2M",
-        label: "Total reach",
-        context: "11.1M impressions · 190 posts · 58 creators · 113 kits sent",
-      },
-      challenge:
-        "Cappello's was launching a first-in-category SKU and needed broad awareness with emphasis on retail distribution, getting the product in front of the right audiences at scale without relying purely on paid.",
-      approach:
-        "Seeded 113 product kits across a curated mix of macro and mid-tier creators across food, health, and lifestyle, spanning accounts with combined audiences in the tens of millions. Quality of fit over raw follower count.",
-      result:
-        "58 of 113 gifted creators posted unprompted, a 51% share rate well above typical gifting benchmarks, generating 190 pieces of content and 11.2M total reach. Our most successful influencer campaign to date.",
-      scope: ["Influencer", "Brand Awareness", "Retail Launch"],
-      results: [
-        { value: "51%", label: "Creator share rate", context: "58 of 113 gifted creators posted unprompted" },
-        { value: "190", label: "Posts generated", context: "Organic, unprompted content" },
-        { value: "1.8M", label: "Top creator reach", context: "@skinnytaste, healthy recipe developer" },
-        { value: "113", label: "Kits seeded", context: "Macro to micro, food to lifestyle" },
-      ],
     },
   },
   {
@@ -313,6 +277,7 @@ export const brands: Brand[] = [
   {
     name: "SMS Channel",
     category: "SMS · Retention",
+    bg: smsCreative,
     caseStudy: {
       subtitle: "Taza Chocolate + Reuzel · A channel-specific look at how we build SMS programs",
       tagline:
@@ -337,6 +302,34 @@ export const brands: Brand[] = [
       ],
     },
   },
+  {
+    name: "Bristol Seafood",
+    category: "Retail Media · Instacart",
+    bg: bristolSeafood,
+    caseStudy: {
+      subtitle: "Premium sustainable seafood, Maine · Instacart retail media",
+      tagline:
+        "Helped a wholesale seafood company launch its retail line on Instacart, driving 2.9x ROAS with 83% of attributed sales from brand-new customers.",
+      heroStat: {
+        value: "83%",
+        label: "New-to-brand sales",
+        context: "$17.4K of $20.9K in attributed sales came from first-time customers",
+      },
+      challenge:
+        "Bristol Seafood, a premium sustainable seafood company out of Maine, was primarily a wholesale business launching a new retail line of ready-to-eat frozen and refrigerated fish products. With little direct-to-consumer brand recognition, they needed to build awareness and win new customers for the retail range.",
+      approach:
+        "Built and managed a full Instacart Ads program optimized for both efficiency and new customer acquisition. Tuned bidding, targeting, and creative around the ready-to-eat products most likely to convert first-time buyers and introduce the brand to retail shoppers.",
+      result:
+        "2.9x blended ROAS across the program, with 83% of attributed sales coming from new-to-brand customers, turning retail media into a genuine awareness and acquisition channel for the retail launch, not just a way to capture existing demand.",
+      scope: ["Retail Media", "Paid Media", "Instacart"],
+      results: [
+        { value: "2.9x", label: "Blended ROAS", context: "$5,868 spend to $16,934 attributed sales" },
+        { value: "3.0x", label: "Top campaign ROAS", context: "All Products LP campaign" },
+        { value: "370K", label: "Impressions", context: "1.3% CTR, $1.69 avg CPC" },
+        { value: "1,012", label: "Units sold", context: "Attributed to retail media" },
+      ],
+    },
+  },
 ];
 
 const tickerItems = [
@@ -354,7 +347,7 @@ const stats: { value: string; label: string; context?: string }[] = [
 ];
 
 /* ─────────────────────────────────────────────
-   NAV — centered logo, links on each side
+   NAV  -  centered logo, links on each side
    Mirrors Stone exactly.
 ───────────────────────────────────────────── */
 export function Navbar({ tone }: { tone: "dark" | "light" }) {
@@ -473,15 +466,15 @@ export function Navbar({ tone }: { tone: "dark" | "light" }) {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-40 flex flex-col justify-center items-center gap-8 text-3xl font-bold uppercase tracking-wide"
+            className="fixed inset-0 z-40 flex flex-col justify-center items-center gap-8"
             style={{ background: DARK, color: "#fff" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <Link href="/work" onClick={() => setOpen(false)} className="hover:opacity-60 transition-opacity" style={{ color: "#fff", textDecoration: "none" }}>Work</Link>
-            <button onClick={() => { openAbout(); setOpen(false); }} className="hover:opacity-60 transition-opacity cursor-pointer" style={{ background: "none", border: "none", color: "#fff", fontSize: "inherit", fontWeight: "inherit", letterSpacing: "inherit" }}>About</button>
-            <button onClick={() => { openContact(); setOpen(false); }} style={{ color: ORANGE, background: "none", border: "none", fontSize: "inherit", fontWeight: "inherit", letterSpacing: "inherit", cursor: "pointer" }}>Reach Out</button>
+            <Link href="/work" onClick={() => setOpen(false)} className="hover:opacity-60 transition-opacity" style={{ color: "#fff", textDecoration: "none", fontSize: "2rem", fontWeight: 900 }}>Work</Link>
+            <button onClick={() => { openAbout(); setOpen(false); }} className="hover:opacity-60 transition-opacity cursor-pointer" style={{ background: "none", border: "none", color: "#fff", fontSize: "2rem", fontWeight: 900 }}>About</button>
+            <button onClick={() => { openContact(); setOpen(false); }} className="hover:opacity-60 transition-opacity cursor-pointer" style={{ color: ORANGE, background: "none", border: "none", fontSize: "2rem", fontWeight: 900 }}>Reach Out</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -490,7 +483,7 @@ export function Navbar({ tone }: { tone: "dark" | "light" }) {
 }
 
 /* ─────────────────────────────────────────────
-   HERO — fast-cut mixed slideshow: real brand photos + stock videos.
+   HERO  -  fast-cut mixed slideshow: real brand photos + stock videos.
    Images: 2.2 s with Ken Burns zoom. Videos: 3.5 s then advance.
    Hard dissolve: 0.35 s.
 ───────────────────────────────────────────── */
@@ -499,7 +492,7 @@ type HeroSlide =
   | { kind: "video"; src: string; duration: number };
 
 const heroSlides: HeroSlide[] = [
-  { kind: "image", src: bornSimpleFamily,   duration: 4500 },
+  { kind: "image", src: tazaSpring,         duration: 4500 },
   { kind: "image", src: lesserEvilFriends,  duration: 4500 },
   { kind: "video", src: heroVid1,           duration: 6000 },
   { kind: "image", src: cappellosSmile,     duration: 4500 },
@@ -507,9 +500,7 @@ const heroSlides: HeroSlide[] = [
   { kind: "image", src: honeyMamas,         duration: 4500 },
   { kind: "image", src: dolcezza,           duration: 4500 },
   { kind: "image", src: grandyProducts,     duration: 4500 },
-  { kind: "image", src: bornSimpleCheese,   duration: 4500 },
   { kind: "image", src: bornSimpleMexican,  duration: 4500 },
-  { kind: "image", src: bornSimpleTeriyaki, duration: 4500 },
 ];
 
 function HeroSlideshow() {
@@ -529,7 +520,7 @@ function HeroSlideshow() {
   if (reduce) {
     return (
       <div className="absolute inset-0 overflow-hidden">
-        <img src={bornSimpleFamily} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+        <img src={tazaSpring} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
       </div>
     );
   }
@@ -538,8 +529,8 @@ function HeroSlideshow() {
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Poster fallback — visible until first slide fades in */}
-      <img src={bornSimpleFamily} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 0 }} />
+      {/* Poster fallback  -  visible until first slide fades in */}
+      <img src={tazaSpring} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" style={{ zIndex: 0 }} />
 
       <AnimatePresence mode="sync">
         <motion.div
@@ -609,10 +600,10 @@ function Hero() {
         style={{ background: "linear-gradient(to bottom, rgba(14,12,10,0.55) 0%, rgba(14,12,10,0.25) 40%, rgba(14,12,10,0.65) 100%)" }}
       />
 
-      {/* Orange flood overlay — pours in on scroll */}
+      {/* Orange flood overlay  -  pours in on scroll */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ background: ORANGE, opacity: orangeOverlay }} />
 
-      {/* Hero column — wordmark + tagline stacked in one centered flow so they
+      {/* Hero column  -  wordmark + tagline stacked in one centered flow so they
          can never overlap. Wordmark is scroll-linked: white → orange, grows, then fades. */}
       <div className="relative z-10 flex flex-col items-center text-center px-6">
         <motion.div
@@ -624,14 +615,14 @@ function Hero() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, delay: 0.15, ease: [0.34, 1.9, 0.64, 1] }}
           >
-            {/* orange — visible on load, sits underneath */}
+            {/* orange  -  visible on load, sits underneath */}
             <img
               src={logoOrangePath}
               alt="Little Pilot"
               className="w-full object-contain"
               style={{ filter: "drop-shadow(0 6px 40px rgba(249,85,0,0.45))" }}
             />
-            {/* white — fades in on top, becoming the resting state */}
+            {/* white  -  fades in on top, becoming the resting state */}
             <motion.img
               src={logoOrangePath}
               alt=""
@@ -659,20 +650,20 @@ function Hero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9, delay: 2.0 }}
       >
-        <div className="py-3 overflow-hidden">
+        <div className="py-4 overflow-hidden">
           <motion.div
-            className="flex whitespace-nowrap"
+            className="flex whitespace-nowrap items-center"
             style={{ width: "max-content" }}
             animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 60, ease: "linear", repeat: Infinity }}
+            transition={{ duration: 38, ease: "linear", repeat: Infinity }}
           >
-            {[...tickerItems, ...tickerItems].map((item, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 px-8">
-                <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70">
+            {[...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems].map((item, idx) => (
+              <React.Fragment key={idx}>
+                <span className="text-[15px] font-bold uppercase tracking-[0.22em] text-white/75 px-10">
                   {item.label}
                 </span>
-                <span className="text-white/25 ml-2">·</span>
-              </span>
+                <span className="text-[13px] shrink-0" style={{ color: ORANGE, opacity: 0.6 }}>✦</span>
+              </React.Fragment>
             ))}
           </motion.div>
         </div>
@@ -682,15 +673,15 @@ function Hero() {
 }
 
 /* ─────────────────────────────────────────────
-   INTRO — dark section, big centered statement
+   INTRO  -  dark section, big centered statement
 ───────────────────────────────────────────── */
 function Intro() {
   return (
     <section
       id="intro"
-      data-navtone="dark"
-      className="relative min-h-[100dvh] flex flex-col justify-center py-40"
-      style={{ background: DARK }}
+      data-navtone="light"
+      className="relative min-h-[100dvh] flex flex-col justify-center pt-20 pb-40"
+      style={{ background: CREAM }}
     >
       <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Giant headline */}
@@ -702,8 +693,8 @@ function Intro() {
           transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
         >
           <h1
-            className="font-black leading-[0.88] tracking-tight text-white"
-            style={{ fontSize: "clamp(3rem, 8vw, 7.5rem)" }}
+            className="font-black leading-[0.88] tracking-tight"
+            style={{ fontSize: "clamp(3rem, 8vw, 7.5rem)", color: DARK }}
           >
             CPG Native.<br />
             <span style={{ color: ORANGE }}>Growth Focused.</span>
@@ -718,8 +709,8 @@ function Intro() {
           viewport={{ once: false, margin: "-80px" }}
           transition={{ duration: 0.8, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.10)", paddingTop: "2rem" }}>
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/35 block mb-6">
+          <div style={{ borderTop: `1px solid rgba(14,12,10,0.12)`, paddingTop: "2rem" }}>
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] block mb-6" style={{ color: "rgba(14,12,10,0.35)" }}>
               Built For
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12">
@@ -727,7 +718,7 @@ function Intro() {
                 <div className="text-sm font-black uppercase tracking-[0.18em] mb-2" style={{ color: ORANGE }}>
                   Food &amp; Beverage
                 </div>
-                <p className="text-sm text-white/40 leading-relaxed">
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(14,12,10,0.45)" }}>
                   organic, natural, clean, regenerative, healthier, allergy-friendly, vegan, fair trade
                 </p>
               </div>
@@ -735,7 +726,7 @@ function Intro() {
                 <div className="text-sm font-black uppercase tracking-[0.18em] mb-2" style={{ color: ORANGE }}>
                   Personal Care
                 </div>
-                <p className="text-sm text-white/40 leading-relaxed">
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(14,12,10,0.45)" }}>
                   grooming, beauty, wellness, supplements
                 </p>
               </div>
@@ -743,7 +734,7 @@ function Intro() {
                 <div className="text-sm font-black uppercase tracking-[0.18em] mb-2" style={{ color: ORANGE }}>
                   Emerging CPG
                 </div>
-                <p className="text-sm text-white/40 leading-relaxed">
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(14,12,10,0.45)" }}>
                   DTC + retail, launch through scale
                 </p>
               </div>
@@ -751,26 +742,50 @@ function Intro() {
           </div>
         </motion.div>
 
-        {/* Body + CTA bottom-right */}
+        {/* Body + CTA — left */}
         <motion.div
-          className="lg:col-start-7 lg:col-span-6"
+          className="lg:col-span-6"
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-80px" }}
           transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
         >
-          <p className="text-white/50 text-lg leading-relaxed mb-10">
-            Little Pilot is a small, senior team of marketers and designers built specifically for natural products and CPG brands. We run paid media, email & SMS, creative, and influencer programs as a true extension of your in house team. We're closer to a partner than a vendor, with the reporting and accountability of an agency.
+          <p className="text-lg leading-relaxed mb-10" style={{ color: "rgba(14,12,10,0.55)" }}>
+            Little Pilot is a small, senior team of marketers and designers built specifically for natural products and CPG brands. We run paid media, email &amp; SMS, creative, and influencer programs as a true extension of your in house team. We're closer to a partner than a vendor, with the reporting and accountability of an agency.
           </p>
           <button
             onClick={() => openContact()}
-            className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-widest border-b-2 pb-1 transition-colors hover:opacity-70 cursor-pointer"
-            style={{ color: ORANGE, borderColor: ORANGE, background: "none", border: "none", borderBottom: `2px solid ${ORANGE}` }}
+            className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-widest pb-1 transition-opacity hover:opacity-70 cursor-pointer"
+            style={{ color: ORANGE, background: "none", border: "none", borderBottom: `2px solid ${ORANGE}` }}
             data-testid="link-intro-cta"
           >
             Let's Build What Comes Next
             <motion.span animate={{ x: [0, 6, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>→</motion.span>
           </button>
+        </motion.div>
+
+        {/* Right column — key facts */}
+        <motion.div
+          className="hidden lg:flex lg:col-span-6 flex-col justify-end gap-6 pl-12"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: false, margin: "-80px" }}
+          transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {[
+            { value: "2018", label: "Wheels up" },
+            { value: "40+", label: "Brands flown" },
+            { value: "100%", label: "CPG focused" },
+          ].map((f) => (
+            <div key={f.value} className="flex items-baseline gap-5" style={{ borderTop: `1px solid rgba(14,12,10,0.10)`, paddingTop: "1.25rem" }}>
+              <span className="font-black leading-none" style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)", color: ORANGE }}>
+                {f.value}
+              </span>
+              <span className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: "rgba(14,12,10,0.40)" }}>
+                {f.label}
+              </span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>
@@ -778,7 +793,7 @@ function Intro() {
 }
 
 /* ─────────────────────────────────────────────
-   SERVICES — full-funnel capabilities from deck
+   SERVICES  -  full-funnel capabilities from deck
 ───────────────────────────────────────────── */
 const serviceList = [
   {
@@ -815,7 +830,7 @@ const serviceList = [
 
 function Services() {
   return (
-    <section data-navtone="dark" id="services" className="border-t border-white/10" style={{ background: DARK }}>
+    <section data-navtone="light" id="services" style={{ background: CREAM, borderTop: `1px solid rgba(14,12,10,0.08)` }}>
       <div className="max-w-7xl mx-auto px-6 py-24 md:py-32">
         <ScrollReveal>
           <span className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: ORANGE }}>
@@ -824,8 +839,8 @@ function Services() {
         </ScrollReveal>
         <ScrollReveal>
           <h2
-            className="font-black tracking-tight leading-[0.92] mt-6 text-white"
-            style={{ fontSize: "clamp(2.5rem, 7vw, 6rem)" }}
+            className="font-black tracking-tight leading-[0.92] mt-6"
+            style={{ fontSize: "clamp(2.5rem, 7vw, 6rem)", color: DARK }}
           >
             full-funnel growth<br />
             <span style={{ color: ORANGE }}>for cpg brands.</span>
@@ -834,7 +849,7 @@ function Services() {
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {serviceList.map((s, i) => (
             <ScrollReveal key={s.num} delay={i * 0.04}>
-              <div className="p-8 h-full" style={{ background: "rgba(255,255,255,0.04)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="p-8 h-full" style={{ background: "rgba(14,12,10,0.04)", borderRadius: 20, border: "1px solid rgba(14,12,10,0.08)" }}>
                 <div
                   className="text-xs font-bold uppercase tracking-[0.2em] mb-4"
                   style={{ color: ORANGE }}
@@ -843,11 +858,11 @@ function Services() {
                 </div>
                 <h3
                   className="font-black tracking-tight text-xl mb-3"
-                  style={{ color: CREAM }}
+                  style={{ color: DARK }}
                 >
                   {s.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-white/50">{s.body}</p>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(14,12,10,0.50)" }}>{s.body}</p>
               </div>
             </ScrollReveal>
           ))}
@@ -858,10 +873,11 @@ function Services() {
 }
 
 /* ─────────────────────────────────────────────
-   BRAND CARD — portfolio piece, photo + white logo
+   BRAND CARD  -  portfolio piece, photo + white logo
 ───────────────────────────────────────────── */
 export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: number }) {
   const isFull = brand.span === "full";
+  const heroStat = brand.caseStudy?.heroStat;
 
   return (
     <motion.button
@@ -869,13 +885,14 @@ export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: nu
       onClick={() => openCaseStudy(index)}
       aria-label={`${brand.name}: view case study`}
       className={`group relative block w-full text-left overflow-hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F2EAE0] ${isFull ? "md:col-span-2" : ""}`}
-      style={{ background: DARK, aspectRatio: isFull ? "16 / 7" : "4 / 3", border: "none", borderRadius: 20, ["--tw-ring-color" as string]: ORANGE }}
+      style={{ background: DARK, aspectRatio: isFull ? "16 / 7" : "4 / 3", minHeight: isFull ? 280 : undefined, border: "none", borderRadius: 20, ["--tw-ring-color" as string]: ORANGE }}
       initial={{ opacity: 0, y: 60 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-60px" }}
       transition={{ duration: 0.8, delay: (index % 2) * 0.08, ease: [0.16, 1, 0.3, 1] }}
       data-testid={`card-brand-${index}`}
     >
+      {/* Background image */}
       {brand.bg && (
         <img
           src={brand.bg}
@@ -883,44 +900,77 @@ export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: nu
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
         />
       )}
+
+      {/* Orange inset border on hover */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-500 opacity-0 group-hover:opacity-100"
+        style={{ boxShadow: `inset 0 0 0 2px ${ORANGE}`, borderRadius: 20 }}
+      />
+
+      {/* Gradient overlay  -  deeper at bottom for legibility */}
       <div
         className="absolute inset-0"
         style={{
           background: brand.bg
-            ? "linear-gradient(to top, rgba(14,12,10,0.78) 0%, rgba(14,12,10,0.18) 45%, rgba(14,12,10,0.4) 100%)"
-            : "linear-gradient(135deg, rgba(249,85,0,0.12) 0%, rgba(14,12,10,0) 60%)",
+            ? "linear-gradient(to top, rgba(14,12,10,0.92) 0%, rgba(14,12,10,0.15) 50%, rgba(14,12,10,0.35) 100%)"
+            : "linear-gradient(135deg, rgba(249,85,0,0.14) 0%, rgba(14,12,10,0) 60%)",
         }}
       />
+
+      {/* Logo  -  fades out on hover to reveal stat */}
       {brand.logo && (
         <div className="absolute inset-0 flex items-center justify-center p-10 pointer-events-none">
           <img
             src={brand.logo}
             alt={brand.name}
-            className="object-contain transition-transform duration-700 group-hover:-translate-y-1"
+            className="object-contain transition-all duration-500 group-hover:opacity-0 group-hover:-translate-y-4"
             style={{ maxHeight: isFull ? "32%" : "38%", maxWidth: "62%" }}
           />
         </div>
       )}
 
-      {/* Bottom info — name + category stacked, no overlap */}
+      {/* Index  -  top-left */}
+      <div className="absolute top-6 left-6 md:top-8 md:left-8 pointer-events-none">
+        <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/25">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
+
+      {/* Bottom panel */}
       <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 pointer-events-none">
-        {!brand.logo && (
-          <h3
-            className="font-black uppercase tracking-tight leading-[0.9] text-white mb-2 transition-transform duration-700 group-hover:-translate-y-1"
-            style={{ fontSize: "clamp(1.5rem, 3.5vw, 3rem)" }}
+        {/* Hero stat  -  slides up on hover */}
+        {heroStat && (
+          <div
+            className="mb-4 translate-y-4 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100"
           >
-            {brand.name}
-          </h3>
+            <div
+              className="font-black leading-none mb-1"
+              style={{ fontSize: "clamp(2rem, 4.5vw, 3.25rem)", color: ORANGE }}
+            >
+              {heroStat.value}
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">
+              {heroStat.label}
+            </div>
+          </div>
         )}
+
+        {/* Brand name + category  -  always visible */}
+        <h3
+          className="font-black uppercase tracking-tight leading-[0.9] text-white mb-2 transition-transform duration-500 group-hover:-translate-y-1"
+          style={{ fontSize: "clamp(1.1rem, 2.4vw, 1.6rem)" }}
+        >
+          {brand.name}
+        </h3>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70">
+          <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">
             {brand.category}
           </span>
           <span
             className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-0 -translate-x-2 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 whitespace-nowrap"
             style={{ color: ORANGE }}
           >
-            View →
+            View case study →
           </span>
         </div>
       </div>
@@ -928,10 +978,185 @@ export function BrandCard({ brand, index }: { brand: typeof brands[0]; index: nu
   );
 }
 
+const FEATURED_NAMES = ["Taza Chocolate", "Reuzel", "Grandy Organics", "Honey Mama's"];
+
+function FeaturedCarousel() {
+  const featured = brands.filter((b) => FEATURED_NAMES.includes(b.name));
+  const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+
+  const go = (delta: 1 | -1) => {
+    setDir(delta);
+    setIdx((i) => (i + delta + featured.length) % featured.length);
+  };
+
+  const brand = featured[idx];
+  const globalIdx = brands.findIndex((b) => b.name === brand.name);
+  const cs = brand.caseStudy;
+
+  const arrowBtn: React.CSSProperties = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 20,
+    background: "rgba(14,12,10,0.5)",
+    border: "1px solid rgba(255,255,255,0.15)",
+    color: "#fff",
+    width: 48,
+    height: 48,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    fontSize: 22,
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+    transition: "background 0.2s",
+  };
+
+  return (
+    <div className="relative w-full overflow-hidden" style={{ height: "clamp(460px, 70vh, 760px)" }}>
+      {/* Crossfading background images */}
+      <AnimatePresence mode="sync" custom={dir}>
+        <motion.div
+          key={idx}
+          className="absolute inset-0"
+          custom={dir}
+          variants={{
+            enter: (d: number) => ({ opacity: 0, x: d * 40 }),
+            center: { opacity: 1, x: 0 },
+            exit: (d: number) => ({ opacity: 0, x: d * -40 }),
+          }}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {brand.bg && (
+            <img
+              src={brand.bg}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          {/* Gradient: strong bottom, softer sides */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(14,12,10,0.92) 0%, rgba(14,12,10,0.45) 45%, rgba(14,12,10,0.10) 100%)",
+            }}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Prev / Next arrows */}
+      <button style={{ ...arrowBtn, left: "1.25rem" }} onClick={() => go(-1)} aria-label="Previous brand">
+        ‹
+      </button>
+      <button style={{ ...arrowBtn, right: "1.25rem" }} onClick={() => go(1)} aria-label="Next brand">
+        ›
+      </button>
+
+      {/* Content overlay */}
+      <div className="absolute inset-0 flex flex-col justify-end pointer-events-none">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 pb-10 md:pb-14 w-full">
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div
+              key={idx}
+              custom={dir}
+              variants={{
+                enter: (d: number) => ({ opacity: 0, y: d > 0 ? 18 : -18 }),
+                center: { opacity: 1, y: 0 },
+                exit: (d: number) => ({ opacity: 0, y: d > 0 ? -12 : 12 }),
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col md:flex-row md:items-end justify-between gap-6 pointer-events-auto"
+            >
+              {/* Left: category → name → stat */}
+              <div>
+                <div
+                  className="text-[10px] font-bold uppercase tracking-[0.28em] mb-3"
+                  style={{ color: ORANGE }}
+                >
+                  {brand.category}
+                </div>
+                <h3
+                  className="font-black leading-[0.88] tracking-tight text-white mb-4"
+                  style={{ fontSize: "clamp(2.2rem, 5.5vw, 5rem)" }}
+                >
+                  {brand.name}
+                </h3>
+                {cs?.heroStat && (
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <span
+                      className="font-black leading-none"
+                      style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.8rem)", color: ORANGE }}
+                    >
+                      {cs.heroStat.value}
+                    </span>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                      style={{ color: "rgba(255,255,255,0.55)" }}
+                    >
+                      {cs.heroStat.label}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: open case study */}
+              <button
+                onClick={() => openCaseStudy(globalIdx)}
+                className="self-start md:self-end shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] px-6 py-3 transition-opacity hover:opacity-75 cursor-pointer"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,255,255,0.20)",
+                  borderRadius: 9999,
+                  color: "#fff",
+                  backdropFilter: "blur(6px)",
+                  WebkitBackdropFilter: "blur(6px)",
+                }}
+              >
+                View Case Study →
+              </button>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Dot indicators */}
+          <div className="flex items-center gap-2 mt-8 pointer-events-auto">
+            {featured.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setDir(i > idx ? 1 : -1); setIdx(i); }}
+                aria-label={`Go to ${featured[i].name}`}
+                style={{
+                  height: 4,
+                  width: i === idx ? 28 : 8,
+                  borderRadius: 2,
+                  background: i === idx ? ORANGE : "rgba(255,255,255,0.30)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "width 0.3s ease, background 0.3s ease",
+                  padding: 0,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Work() {
   return (
     <section id="work" data-navtone="dark" className="border-t border-white/10" style={{ background: DARK }}>
-      {/* Section header — real copy from littlepilot.co/work */}
+      {/* Section header */}
       <div className="max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-12 md:pb-16">
         <ScrollReveal>
           <span className="text-xs font-bold uppercase tracking-[0.25em]" style={{ color: ORANGE }}>
@@ -954,22 +1179,11 @@ function Work() {
         </ScrollReveal>
       </div>
 
-      {/* Brand grid */}
-      <div className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {brands.map((b, i) => (
-            <BrandCard key={i} brand={b} index={i} />
-          ))}
-        </div>
-      </div>
-
-      {/* Scrolling work reel — folded in from WorkReel */}
-      <div className="mt-8">
-        <WorkReel />
-      </div>
+      {/* Featured carousel — 4 highlighted brands */}
+      <FeaturedCarousel />
 
       {/* Closing CTA */}
-      <div className="max-w-7xl mx-auto px-6 pb-24 border-t border-black/10 pt-16 mt-8">
+      <div className="max-w-7xl mx-auto px-6 pb-24 border-t border-white/10 pt-16 mt-12">
         <ScrollReveal>
           <button
             onClick={() => openContact()}
@@ -986,32 +1200,30 @@ function Work() {
 }
 
 /* ─────────────────────────────────────────────
-   WORK REEL — dual-row auto-scrolling project strip
+   WORK REEL  -  dual-row auto-scrolling project strip
 ───────────────────────────────────────────── */
-const reelRowOne = [
-  { src: reuzelReel, alt: "Reuzel campaign", label: "Reuzel", category: "Paid · Email · SMS" },
-  { src: grandyCamp, alt: "Grandy Organics", label: "Grandy Organics", category: "Packaging · Brand" },
-  { src: cappellosSmile, alt: "Cappello's influencer", label: "Cappello's", category: "Influencer · Retail" },
-  { src: bornSimpleFamily, alt: "Born Simple family", label: "Born Simple", category: "Influencer · Social" },
-];
-const reelRowTwo = [
-  { src: honeyMamas, alt: "Honey Mama's", label: "Honey Mama's", category: "Paid · Retail" },
-  { src: grandyProducts, alt: "Grandy products", label: "Grandy Organics", category: "Packaging · Brand" },
-  { src: bornSimpleMexican, alt: "Born Simple bowl", label: "Born Simple", category: "Influencer · Retail" },
-  { src: lesserEvilFriends, alt: "Campaign shoot", label: "Lesser Evil", category: "Influencer · DTC" },
+const reelItems = [
+  { src: reuzelReel,       alt: "Reuzel campaign",       label: "Reuzel",          category: "Paid · Email · SMS" },
+  { src: tazaSpring,       alt: "Taza Chocolate",         label: "Taza Chocolate",  category: "Paid · Email · Social" },
+  { src: grandyCamp,       alt: "Grandy Organics camp",   label: "Grandy Organics", category: "Packaging · Brand" },
+  { src: honeyMamas,       alt: "Honey Mama's",           label: "Honey Mama's",    category: "Paid · Retail" },
+  { src: smsCreative,      alt: "SMS campaigns",          label: "SMS Channel",     category: "SMS · Retention" },
+  { src: grandyProducts,   alt: "Grandy products",        label: "Grandy Organics", category: "Packaging · Brand" },
+  { src: dolcezza,         alt: "Dolcezza",               label: "Dolcezza",        category: "Paid · Email" },
+  { src: lesserEvilFriends,alt: "Campaign shoot",         label: "Lesser Evil",     category: "Influencer · DTC" },
+  { src: bornSimpleMexican,alt: "Born Simple bowl",       label: "Born Simple",     category: "Influencer · Retail" },
 ];
 
 export function WorkReel() {
-  const items = [...reelRowOne, ...reelRowTwo];
-  const looped = [...items, ...items];
+  const looped = [...reelItems, ...reelItems];
   const trackRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
   const paused = useRef(false);
   const dragging = useRef(false);
   const dragStartX = useRef(0);
   const dragScrollStart = useRef(0);
-  const SPEED = 0.6;
-  const CARD_W = 330;
+  const SPEED = 1.0;
+  const CARD_W = 420;
 
   useEffect(() => {
     const track = trackRef.current;
@@ -1027,12 +1239,6 @@ export function WorkReel() {
     return () => cancelAnimationFrame(animRef.current);
   }, []);
 
-  const scrollBy = (dir: 1 | -1) => {
-    paused.current = true;
-    trackRef.current?.scrollBy({ left: dir * CARD_W, behavior: "smooth" });
-    window.setTimeout(() => { paused.current = false; }, 900);
-  };
-
   const onMouseDown = (e: React.MouseEvent) => {
     dragging.current = true;
     dragStartX.current = e.clientX;
@@ -1046,39 +1252,27 @@ export function WorkReel() {
   const stopDrag = () => { dragging.current = false; };
 
   const cardStyle: React.CSSProperties = {
-    width: "clamp(220px, 20vw, 320px)",
-    height: "clamp(150px, 15vw, 220px)",
+    width: "clamp(260px, 26vw, 420px)",
+    height: "clamp(190px, 19vw, 300px)",
     flexShrink: 0,
     position: "relative",
     overflow: "hidden",
-    borderRadius: "20px",
+    borderRadius: "16px",
   };
 
-  const arrowBtn: React.CSSProperties = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    zIndex: 10,
-    background: "rgba(14,12,10,0.75)",
-    border: "1px solid rgba(255,255,255,0.18)",
-    color: "white",
-    width: "42px",
-    height: "42px",
-    borderRadius: "50%",
+  const sepStyle: React.CSSProperties = {
+    flexShrink: 0,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    fontSize: "22px",
-    lineHeight: 1,
-    backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-    transition: "background 0.2s",
+    padding: "0 10px",
+    fontSize: "18px",
+    color: ORANGE,
+    opacity: 0.45,
+    userSelect: "none",
   };
 
   return (
-    <div style={{ overflow: "hidden", paddingTop: "0.5rem", paddingBottom: "0.5rem", position: "relative" }}>
-      <button style={{ ...arrowBtn, left: "1rem" }} onClick={() => scrollBy(-1)} aria-label="Previous">‹</button>
-      <button style={{ ...arrowBtn, right: "1rem" }} onClick={() => scrollBy(1)} aria-label="Next">›</button>
+    <div style={{ overflow: "hidden", paddingTop: "0.75rem", paddingBottom: "0.75rem" }}>
       <div
         ref={trackRef}
         onMouseEnter={() => { paused.current = true; }}
@@ -1088,33 +1282,35 @@ export function WorkReel() {
         onMouseUp={stopDrag}
         style={{
           display: "flex",
-          gap: "0.5rem",
+          alignItems: "center",
+          gap: "0",
           overflowX: "scroll",
           scrollbarWidth: "none",
-          cursor: dragging.current ? "grabbing" : "grab",
+          cursor: "grab",
           userSelect: "none",
-          paddingLeft: "0.25rem",
-          paddingRight: "0.25rem",
         }}
       >
         {looped.map((item, i) => (
-          <div key={i} style={cardStyle}>
-            <img
-              src={item.src}
-              alt={item.alt}
-              draggable={false}
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-            />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(14,12,10,0.72) 0%, transparent 55%)" }} />
-            <div style={{ position: "absolute", bottom: "1rem", left: "1.25rem" }}>
-              <div style={{ fontSize: "10px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.22em", color: "rgba(255,255,255,0.9)" }}>
-                {item.label}
-              </div>
-              <div style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em", color: ORANGE, marginTop: "2px" }}>
-                {item.category}
+          <React.Fragment key={i}>
+            <div style={cardStyle}>
+              <img
+                src={item.src}
+                alt={item.alt}
+                draggable={false}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(14,12,10,0.72) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", bottom: "1rem", left: "1.25rem" }}>
+                <div style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.22em", color: "rgba(255,255,255,0.9)" }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.18em", color: ORANGE, marginTop: "3px" }}>
+                  {item.category}
+                </div>
               </div>
             </div>
-          </div>
+            <div style={sepStyle}>✦</div>
+          </React.Fragment>
         ))}
       </div>
     </div>
@@ -1122,10 +1318,10 @@ export function WorkReel() {
 }
 
 /* ─────────────────────────────────────────────
-   BRAVE BRANDS — Stone's "WE ARE FOR BRAVE BRANDS"
+   BRAVE BRANDS  -  Stone's "WE ARE FOR BRAVE BRANDS"
 ───────────────────────────────────────────── */
 /* ─────────────────────────────────────────────
-   RETAILERS — scrolling logo strip
+   RETAILERS  -  scrolling logo strip
 ───────────────────────────────────────────── */
 const W = "brightness(0) invert(1)"; // dark-on-transparent → white
 const G = "grayscale(1) brightness(2)"; // complex colored bg → preserve shape
@@ -1215,7 +1411,7 @@ function Statement() {
     <section
       id="about"
       data-navtone="dark"
-      className="relative py-40 overflow-hidden"
+      className="relative pt-20 pb-40 overflow-hidden"
       style={{ background: DARK }}
     >
       <div className="max-w-7xl mx-auto px-6">
@@ -1314,7 +1510,7 @@ function Statement() {
 ───────────────────────────────────────────── */
 function Stats() {
   return (
-    <section data-navtone="dark" className="py-32 border-t border-white/10" style={{ background: DARK }}>
+    <section data-navtone="dark" className="pt-16 pb-32 border-t border-white/10" style={{ background: DARK }}>
       <div className="max-w-7xl mx-auto px-6">
         <ScrollReveal className="mb-20">
           <h2
@@ -1326,10 +1522,10 @@ function Stats() {
           </h2>
         </ScrollReveal>
 
-        <div className="grid grid-cols-2 lg:grid-cols-5 border-t border-white/10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 border-t border-white/10">
           {stats.map((s, i) => (
             <ScrollReveal key={i} delay={i * 0.08}>
-              <div className="py-12 pr-8 border-b lg:border-b-0 border-r border-white/10 last:border-r-0">
+              <div className="py-12 px-6 border-b border-r border-white/10 last:border-b-0 sm:last:border-b lg:last:border-b-0 last:border-r-0 sm:odd:last:border-r-0 lg:last:border-r-0 first:pl-0">
                 <div
                   className="font-black leading-none mb-3"
                   style={{ fontSize: "clamp(3rem, 6vw, 6rem)", color: ORANGE }}
@@ -1354,7 +1550,7 @@ function Stats() {
 }
 
 /* ─────────────────────────────────────────────
-   CASE STUDY MODAL — placeholder write-up per brand
+   CASE STUDY MODAL  -  placeholder write-up per brand
 ───────────────────────────────────────────── */
 export function CaseStudyModal() {
   const [brand, setBrand] = useState<typeof brands[0] | null>(null);
@@ -1519,7 +1715,7 @@ export function CaseStudyModal() {
                 </div>
               )}
 
-              {/* Before / After — packaging redesign comparison */}
+              {/* Before / After  -  packaging redesign comparison */}
               {brand.bgBefore && brand.bg && (
                 <div className="mt-8">
                   <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ORANGE }}>
@@ -1605,6 +1801,30 @@ export function CaseStudyModal() {
                 </div>
               )}
 
+              {/* Stat groups (e.g. Taza: Performance + Brand sections) */}
+              {cs.statGroups?.map((group) => (
+                <div key={group.title} className="mt-10">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ORANGE }}>
+                    {group.title}
+                  </span>
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-px" style={{ background: "rgba(14,12,10,0.12)" }}>
+                    {group.stats.map((r) => (
+                      <div key={r.label} className="p-5" style={{ background: CREAM }}>
+                        <div className="font-black leading-none" style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", color: ORANGE }}>
+                          {r.value}
+                        </div>
+                        <div className="mt-2 text-[10px] md:text-xs font-bold uppercase tracking-widest text-foreground/60">
+                          {r.label}
+                        </div>
+                        {r.context && (
+                          <div className="mt-2 text-[11px] text-foreground/45 leading-snug">{r.context}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
               {/* Checklist (design-led case studies) */}
               {cs.checklist && (
                 <div className="mt-10">
@@ -1656,7 +1876,7 @@ export function CaseStudyModal() {
 }
 
 /* ─────────────────────────────────────────────
-   ABOUT MODAL — who we are / how we fly
+   ABOUT MODAL  -  who we are / how we fly
 ───────────────────────────────────────────── */
 const ABOUT_PILLARS = [
   {
@@ -1800,8 +2020,8 @@ export function AboutModal() {
               </p>
               <p className="mt-5 text-foreground/60 leading-relaxed max-w-2xl">
                 We're a tight crew of strategists, designers, and growth operators who pair
-                big-agency craft with founder-level hustle. From first launch to national
-                retail, we plot the route and fly it with you. No fluff, no hand-offs, just
+                big agency craft with founder level hustle. From first launch to national
+                retail, we plot the route and fly it with you. No fluff, no handoffs, just
                 damn good marketing that earns its place on the shelf.
               </p>
 
@@ -1825,7 +2045,7 @@ export function AboutModal() {
                 {ABOUT_FACTS.map((f) => (
                   <div
                     key={f.label}
-                    className="py-6 pr-4 border-r last:border-r-0"
+                    className="pt-8 pb-8 px-6 first:pl-0 border-r last:border-r-0"
                     style={{ borderColor: "rgba(14,12,10,0.12)" }}
                   >
                     <div
@@ -1862,7 +2082,7 @@ export function AboutModal() {
 }
 
 /* ─────────────────────────────────────────────
-   CONTACT / FOOTER — dark, cinematic
+   CONTACT / FOOTER  -  dark, cinematic
 ───────────────────────────────────────────── */
 function Contact() {
   return (
@@ -1932,25 +2152,42 @@ function Contact() {
         </div>
       </motion.div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/25 uppercase tracking-widest">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center gap-4 md:gap-0 text-xs text-white/25 uppercase tracking-widest">
         <p>© 2026 Little Pilot. All rights reserved.</p>
-        <a
-          href="mailto:alex@littlepilot.co"
-          data-testid="link-contact-email"
-          className="hover:text-white/50 transition-colors normal-case"
-          style={{ textTransform: "none", letterSpacing: "normal" }}
-        >
-          alex@littlepilot.co
-        </a>
-        <p>CPG Digital Marketing Agency</p>
+        <span className="hidden md:inline mx-4 text-white/10">|</span>
+        <p className="opacity-50">CPG Digital Marketing Agency</p>
       </div>
     </section>
   );
 }
 
 /* ─────────────────────────────────────────────
-   CONTACT POPUP — send a message
+   CONTACT POPUP  -  send a message
 ───────────────────────────────────────────── */
+function useCreateContactSubmission() {
+  const [isPending, setIsPending] = useState(false);
+  const mutateAsync = async (payload: {
+    data: { type: string; name: string; email: string; company?: string; message?: string };
+  }) => {
+    setIsPending(true);
+    try {
+      const { data } = payload;
+      const body = [
+        `Name: ${data.name}`,
+        `Email: ${data.email}`,
+        data.company ? `Company: ${data.company}` : null,
+        data.message ? `\n${data.message}` : null,
+      ].filter(Boolean).join("\n");
+      const params = new URLSearchParams({ subject: `New message from ${data.name}`, body });
+      window.open(`mailto:alex@littlepilot.co?${params}`, "_blank");
+      await new Promise<void>(resolve => setTimeout(resolve, 300));
+    } finally {
+      setIsPending(false);
+    }
+  };
+  return { mutateAsync, isPending };
+}
+
 const EMPTY_FORM = { name: "", email: "", company: "", message: "" };
 
 export function ContactModal() {
