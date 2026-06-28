@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import {
   Navbar,
   BrandCard,
-  WorkReel,
   CaseStudyModal,
   AboutModal,
   ContactModal,
@@ -52,11 +51,6 @@ export default function WorkPage() {
             <BrandCard key={i} brand={b} index={i} />
           ))}
         </div>
-      </div>
-
-      {/* Work reel */}
-      <div className="mt-8">
-        <WorkReel />
       </div>
 
       {/* Closing CTA */}
